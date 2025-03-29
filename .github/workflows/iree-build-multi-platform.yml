@@ -125,7 +125,7 @@ jobs:
         # Configure CMake with explicit compiler paths
         cmake ..\iree `
           -GNinja `
-          -DCMAKE_CXX_FLAGS="/Zm2000" `
+          #-DCMAKE_CXX_FLAGS="/Zm2000" `
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
@@ -140,7 +140,8 @@ jobs:
           -DIREE_BUILD_SAMPLES=OFF
 
         # Build IREE
-        cmake --build . --target install -j $env:NUMBER_OF_PROCESSORS
+        #cmake --build . --target install -j $env:NUMBER_OF_PROCESSORS
+        cmake --build . --target install 
     
     - name: Setup environment
       run: |
