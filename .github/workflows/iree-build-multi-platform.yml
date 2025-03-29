@@ -46,6 +46,12 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Clone IREE source tree
+      run: |
+        git clone https://github.com/iree-org/iree.git --depth 1
+        cd iree
+        git submodule update --init --recursive
+
     - name: Cache IREE Build
       id: cache-iree-build
       uses: actions/cache@v3
@@ -56,13 +62,6 @@ jobs:
         key: ${{ runner.os }}-iree-${{ hashFiles('**/CMakeLists.txt', '.git/modules/**/HEAD') }}
         restore-keys: |
           ${{ runner.os }}-iree-
-
-    - name: Clone IREE (if not cached)
-      if: steps.cache-iree-build.outputs.cache-hit != 'true'
-      run: |
-        git clone https://github.com/iree-org/iree.git --depth 1
-        cd iree
-        git submodule update --init --recursive
 
     - name: Setup build dependencies (Unix)
       if: runner.os == 'Linux'
