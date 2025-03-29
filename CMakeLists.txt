@@ -39,8 +39,6 @@ if (DFAOPT_USE_FOLDERS)
 endif()
 
 ####
-# Create the library target
-set(project_library_target_name ${PROJECT_NAME})
 set(PACKAGE_NAME ${PROJECT_NAME})
 message(STATUS "PROJECT_NAME = ${PROJECT_NAME}")
 
@@ -49,7 +47,6 @@ message(STATUS "PROJECT_NAME = ${PROJECT_NAME}")
 option(DFAOPT_CMAKE_TRACE "Tracing CMake results, i.e. printing variable settings." OFF)
 option(DFAOPT_ENABLE_TESTS "Enable the build and run of tests." ON)
 option(DFAOPT_VERBOSE_TESTS "Always print test output, otherwise only errors. Only relevant when tests enabled." OFF)
-option(DFAOPT_VISUALIZATION "Enable/disable visualization tools." OFF)
 
 # Set the toolchain directory
 #set(CMAKE_TOOLCHAIN_FILE "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Path to the vcpkg.cmake")
@@ -94,6 +91,10 @@ macro (compile_all testing prefix folder)
         endif()
     endforeach (source)
 endmacro (compile_all)
+
+if(MSVC)
+    add_compile_options(/Zm2000)
+endif()
 
 # the tools
 add_subdirectory(tools)
