@@ -99,7 +99,7 @@ jobs:
           -DIREE_DEFAULT_CPU_LLVM_TARGETS="X86" \
           -DIREE_BUILD_TESTS=ON \
           -DIREE_BUILD_SAMPLES=OFF
-        cmake --build . --target install -j$(nproc)
+        sudo cmake --build . --target install -j$(nproc)
     
     - name: Build IREE (Windows)
       if: runner.os == 'Windows'
