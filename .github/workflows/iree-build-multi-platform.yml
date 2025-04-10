@@ -64,7 +64,7 @@ jobs:
         $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vsPath = & "$vswherePath" -latest -property installationPath
 
-        # Set up Visual Studio environment variables
+        ## Set up Visual Studio environment variables
         Import-Module (Join-Path $vsPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
         Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation
 
