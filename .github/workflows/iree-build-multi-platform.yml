@@ -15,26 +15,13 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl]
+        c_compiler: [cl]
         include:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
-            c_compiler: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -63,44 +50,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-iree-
 
-    - name: Setup build dependencies (Unix)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          cmake \
-          ninja-build \
-          libsdl2-dev \
-          python3-pip \
-          python3-venv
-
     - name: Setup build dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
         choco install cmake ninja
         pip install lit
 
-    - name: Build IREE (Unix/macOS)
-      if: runner.os == 'Linux'
-      run: |
-        mkdir -p iree-build
-        cd iree-build
-        cmake ../iree \
-          -GNinja \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-          -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/iree-install" \
-          -DIREE_TARGET_BACKEND_DEFAULTS=OFF \
-          -DIREE_TARGET_BACKEND_LLVM_CPU=ON \
-          -DIREE_HAL_DRIVER_DEFAULTS=OFF \
-          -DIREE_HAL_DRIVER_LOCAL_SYNC=ON \
-          -DIREE_HAL_DRIVER_LOCAL_TASK=ON \
-          -DIREE_DEFAULT_CPU_LLVM_TARGETS="X86" \
-          -DIREE_BUILD_TESTS=ON \
-          -DIREE_BUILD_SAMPLES=OFF
-        sudo cmake --build . --target install -j$(nproc)
-    
     - name: Build IREE (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
@@ -124,7 +79,6 @@ jobs:
         # Configure CMake with explicit compiler paths
         cmake ..\iree `
           -GNinja `
-          -DCMAKE_CXX_FLAGS="/Zm2000" `
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
