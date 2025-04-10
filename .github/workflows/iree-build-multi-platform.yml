@@ -94,7 +94,7 @@ jobs:
 
         # Build IREE
         #cmake --build . --target install -j $env:NUMBER_OF_PROCESSORS
-        cmake --build . --target install 
+        cmake --build . --target install --config Release -- -j4
     
     - name: Setup environment
       run: |
