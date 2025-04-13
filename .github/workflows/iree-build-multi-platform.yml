@@ -30,6 +30,7 @@ jobs:
       with:
         minimum-size: 12GB
         maximum-size: 12GB
+  
     - uses: actions/checkout@v4
       with:
         submodules: recursive
@@ -55,6 +56,10 @@ jobs:
         key: ${{ runner.os }}-iree-${{ hashFiles('**/CMakeLists.txt', '.git/modules/**/HEAD') }}
         restore-keys: |
           ${{ runner.os }}-iree-
+  
+    - name: Shorten file paths
+      run: |
+        mv ${{ github.workspace }} d:\t
 
     - name: Setup build dependencies (Windows)
       if: runner.os == 'Windows'
@@ -79,17 +84,17 @@ jobs:
         $env:CXX = (Get-Command cl.exe).Source
 
         # Create build directory
+        cd d:\t
         mkdir iree-build
         cd iree-build
 
         # Configure CMake with explicit compiler paths
         cmake ..\iree `
           -GNinja `
-          -DCMAKE_OBJECT_PATH_MAX=2000 `
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
-          -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/iree-install" `
+          -DCMAKE_INSTALL_PREFIX="d:\t\iree-install" `
           -DIREE_TARGET_BACKEND_DEFAULTS=OFF `
           -DIREE_TARGET_BACKEND_LLVM_CPU=ON `
           -DIREE_HAL_DRIVER_DEFAULTS=OFF `
@@ -102,15 +107,17 @@ jobs:
         # Build IREE
         cmake --build . --target install --config Release
     
+#          #-DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/iree-install" `
     - name: Setup environment
       run: |
-        echo "${{ github.workspace }}/iree-install/bin" >> $GITHUB_PATH
-
+        #echo "${{ github.workspace }}/iree-install/bin" >> $GITHUB_PATH
+        echo "d:\t\iree-install\bin" >> $GITHUB_PATH
     - name: Set reusable strings
       id: strings
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        #echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        echo "build-output-dir=d:\t\build" >> "$GITHUB_OUTPUT"
 
     - name: Configure Project CMake for the source tree
       run: >
@@ -118,9 +125,11 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DIREE_DIR=${{ github.workspace }}/iree-install/lib/cmake/iree
-        -S ${{ github.workspace }}
+        -DIREE_DIR=d:\t\iree-install\lib\cmake\iree
+        -S d:\t
 
+#        #-DIREE_DIR=${{ github.workspace }}/iree-install/lib/cmake/iree
+#  -S ${{ github.workspace }}
     - name: Build Project
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
