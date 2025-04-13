@@ -33,7 +33,6 @@ jobs:
   
     - uses: actions/checkout@v4
       with:
-        path: 't'
         submodules: recursive
 
     - name: Set up Python
@@ -47,22 +46,23 @@ jobs:
         cd iree
         git submodule update --init --recursive
 
-    - name: Cache IREE Build
-      id: cache-iree-build
-      uses: actions/cache@v3
-      with:
-        path: |
-          iree-install
-          iree-build
-        key: ${{ runner.os }}-iree-${{ hashFiles('**/CMakeLists.txt', '.git/modules/**/HEAD') }}
-        restore-keys: |
-          ${{ runner.os }}-iree-
+    # - name: Cache IREE Build
+    #   id: cache-iree-build
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: |
+    #       iree-install
+    #       iree-build
+    #     key: ${{ runner.os }}-iree-${{ hashFiles('**/CMakeLists.txt', '.git/modules/**/HEAD') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-iree-
 
     - name: Setup build dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
         choco install cmake ninja
-        pip install lit
+
+#        #pip install lit
 
     - name: Build IREE (Windows)
       if: runner.os == 'Windows'
