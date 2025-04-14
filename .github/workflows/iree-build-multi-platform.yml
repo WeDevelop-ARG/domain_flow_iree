@@ -61,8 +61,9 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install cmake ninja
-
-#        #pip install lit
+        pip install --upgrade pip
+        pip install lit
+        pip install -r irre/runtime/bindings/python/iree/runtime/build_requirements.txt
 
     - name: Build IREE (Windows)
       if: runner.os == 'Windows'
@@ -88,12 +89,14 @@ jobs:
         # Configure CMake with explicit compiler paths
         cmake ..\iree `
           -GNinja `
-          -DCMAKE_OBJECT_PATH_MAX=2000 `
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+          -DCMAKE_OBJECT_PATH_MAX=350 `
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          -DIREE_ENABLE_ASSERTIONS=ON `
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
           -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/iree-install" `
           -DIREE_TARGET_BACKEND_DEFAULTS=OFF `
+          -DIREE_INPUT_TORCH=OFF `
           -DIREE_TARGET_BACKEND_LLVM_CPU=ON `
           -DIREE_HAL_DRIVER_DEFAULTS=OFF `
           -DIREE_HAL_DRIVER_LOCAL_SYNC=ON `
