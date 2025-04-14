@@ -74,7 +74,8 @@ jobs:
 
         ## Set up Visual Studio environment variables
         Import-Module (Join-Path $vsPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-        Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -Arch amd64
+        # Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -Arch amd64
+        Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation
 
         # Explicitly set compiler paths
         $env:CC = (Get-Command cl.exe).Source
