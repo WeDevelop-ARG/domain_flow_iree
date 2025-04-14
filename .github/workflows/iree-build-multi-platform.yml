@@ -45,6 +45,7 @@ jobs:
         git clone https://github.com/iree-org/iree.git --depth 1
         cd iree
         git submodule update --init --recursive
+        pip install -r runtime/bindings/python/iree/runtime/build_requirements.txt
 
     # - name: Cache IREE Build
     #   id: cache-iree-build
@@ -61,9 +62,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install cmake ninja
-        pip install --upgrade pip
         pip install lit
-        pip install -r irre/runtime/bindings/python/iree/runtime/build_requirements.txt
 
     - name: Build IREE (Windows)
       if: runner.os == 'Windows'
