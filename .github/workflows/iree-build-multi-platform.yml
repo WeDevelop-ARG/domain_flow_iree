@@ -52,16 +52,17 @@ jobs:
     #   uses: actions/cache@v3
     #   with:
     #     path: |
+    #       ccache
     #       iree-install
     #       iree-build
-    #     key: ${{ runner.os }}-iree-${{ hashFiles('**/CMakeLists.txt', '.git/modules/**/HEAD') }}
+    #     key: ${{ runner.os }}-iree
     #     restore-keys: |
-    #       ${{ runner.os }}-iree-
+    #       ${{ runner.os }}-iree
 
     - name: Setup build dependencies (Windows)
       if: runner.os == 'Windows'
       run: |
-        choco install cmake ninja
+        choco install cmake ninja ccache
         pip install lit
 
     - name: Build IREE (Windows)
@@ -72,10 +73,10 @@ jobs:
         $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vsPath = & "$vswherePath" -latest -property installationPath
 
-        ## Set up Visual Studio environment variables
+        # Set up Visual Studio environment variables
         Import-Module (Join-Path $vsPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-        # Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -Arch amd64
-        Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation
+        Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -Arch am64
+        & $vsPath/VC/Auxiliary/Build/vcvarsall.bat amd64
 
         # Explicitly set compiler paths
         $env:CC = (Get-Command cl.exe).Source
@@ -83,13 +84,17 @@ jobs:
 
         # Create build directory
         mkdir iree-build
+        mkdir ccache
         cd iree-build
 
         # Configure CMake with explicit compiler paths
+        #  -DCMAKE_C_COMPILER_LAUNCHER=ccache base_dir="../ccache" hash_dir=false `
+        #  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache base_dir="../ccache" hash_dir=false `
+
         cmake ..\iree `
           -GNinja `
           -DCMAKE_OBJECT_PATH_MAX=350 `
-          -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -DIREE_ENABLE_ASSERTIONS=ON `
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
@@ -106,7 +111,7 @@ jobs:
           -DIREE_BUILD_SAMPLES=OFF
 
         # Build IREE
-        cmake --build . --target install --config Release
+        cmake --build . --target install --config Release -- -k 0
     
     - name: Setup environment
       run: |
